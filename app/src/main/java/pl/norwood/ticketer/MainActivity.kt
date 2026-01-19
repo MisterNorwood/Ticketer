@@ -23,9 +23,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -39,8 +37,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -94,6 +90,10 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
+//Screen handles
+const val EDIT = "edit"
+const val CHECKIN = "checkin"
 @Composable
 fun TicketApp() {
     val navController = rememberNavController()
@@ -104,7 +104,7 @@ fun TicketApp() {
             NavigationBar(containerColor = GruvboxDark1) {
                 NavigationBarItem(
                     selected = navController.currentDestination?.route == stringResource(R.string.edit),
-                    onClick = { navController.navigate(R.string.edit.toString()) },
+                    onClick = { navController.navigate(EDIT) },
                     icon = { Icon(Icons.Default.Edit, contentDescription = null) },
                     label = { Text(stringResource(R.string.nav_edit)) },
                     colors = NavigationBarItemDefaults.colors(
@@ -117,7 +117,7 @@ fun TicketApp() {
                 )
                 NavigationBarItem(
                     selected = navController.currentDestination?.route == stringResource(R.string.checkin),
-                    onClick = { navController.navigate( R.string.checkin.toString())},
+                    onClick = { navController.navigate(CHECKIN) },
                     icon = { Icon(Icons.Default.Check, contentDescription = null) },
                     label = { Text(stringResource(R.string.nav_checkin)) },
                     colors = NavigationBarItemDefaults.colors(
@@ -133,11 +133,11 @@ fun TicketApp() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "edit",
+            startDestination = EDIT,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("edit") { EditScreen(viewModel) }
-            composable("checkin") { CheckInScreen(viewModel) }
+            composable(EDIT) { EditScreen(viewModel) }
+            composable(CHECKIN) { CheckInScreen(viewModel) }
         }
     }
 }
