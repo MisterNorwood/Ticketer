@@ -288,36 +288,37 @@ fun CheckInScreen(viewModel: GuestViewModel) {
     val guests by viewModel.filteredGuests.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(GruvboxBg)) {
+    Scaffold(
+        containerColor = GruvboxBg
+    ) { padding ->
 
-        SearchBar(
-            query = searchQuery,
-            onQueryChange = { viewModel.onSearchQueryChange(it) }
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            SearchBar(
+                query = searchQuery,
+                onQueryChange = { viewModel.onSearchQueryChange(it) }
+            )
 
-        if (guests.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                val message = if (searchQuery.isEmpty()) {
-                    stringResource(R.string.empty_list)
-                } else {
-                    stringResource(R.string.no_guests_found_matching, searchQuery)
+            if (guests.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(text = "No guests found", color = GruvboxGray)
                 }
-                Text(text = message, color = GruvboxGray)
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(guests, key = { it.id }) { guest ->
-                    GuestItemCard(
-                        guest = guest,
-                        isEditMode = false,
-                        onCheckChange = { viewModel.toggleCheckIn(guest) }
-                    )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(guests, key = { it.id }) { guest ->
+                        GuestItemCard(
+                            guest = guest,
+                            isEditMode = false,
+                            onCheckChange = { viewModel.toggleCheckIn(guest) }
+                        )
+                    }
                 }
             }
         }
