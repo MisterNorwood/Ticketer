@@ -3,6 +3,7 @@ package pl.norwood.ticketer
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -184,12 +185,13 @@ fun EditScreen(viewModel: GuestViewModel) {
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(guests, key = { it.id }) { guest ->
-                        GuestEditCard(
+                        GuestItemCard(
                             guest = guest,
-                            onClick = {
+                            onEditClick = {
                                 selectedGuest = guest
                                 showDialog = true
-                            }
+                            },
+                            onCheckChange = null
                         )
                     }
                 }
@@ -315,7 +317,7 @@ fun CheckInScreen(viewModel: GuestViewModel) {
                     items(guests, key = { it.id }) { guest ->
                         GuestItemCard(
                             guest = guest,
-                            isEditMode = false,
+                            onEditClick = null,
                             onCheckChange = { viewModel.toggleCheckIn(guest) }
                         )
                     }
@@ -328,49 +330,58 @@ fun CheckInScreen(viewModel: GuestViewModel) {
 @Composable
 fun GuestItemCard(
     guest: Guest,
-    isEditMode: Boolean,
-    onItemClick: () -> Unit = {},
-    onCheckChange: (Boolean) -> Unit = {}
+    onEditClick: (() -> Unit)? = null,
+    onCheckChange: ((Boolean) -> Unit)? = null
 ) {
+    val isCheckInMode = onCheckChange != null
+    val isChecked = guest.isCheckedIn
+
+    val backgroundColor = if (isCheckInMode && isChecked) GruvboxGreen.copy(alpha = 0.2f) else GruvboxDark1
+
+    val borderStroke = if (isCheckInMode && isChecked) BorderStroke(1.dp, GruvboxGreen) else null
+
     Card(
-        colors = CardDefaults.cardColors(containerColor = GruvboxDark1),
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = isEditMode, onClick = onItemClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            .then(if (onEditClick != null) Modifier.clickable { onEditClick() } else Modifier),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+        border = borderStroke,
+        shape = RoundedCornerShape(12.dp)
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            //Guest Photo
             AsyncImage(
                 model = guest.photoUrl,
-                contentDescription = stringResource(R.string.image_desc),
+                contentDescription = null,
                 modifier = Modifier
-                    .size(width = 80.dp, height = 80.dp)
+                    .size(50.dp)
                     .clip(RoundedCornerShape(8.dp)),
                 contentScale = ContentScale.Crop
             )
 
             Spacer(modifier = Modifier.width(16.dp))
 
+            //Guest Info
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "${guest.name} ${guest.surname}",
-                    style = MaterialTheme.typography.titleMedium,
+                    color = GruvboxFg,
                     fontWeight = FontWeight.Bold,
-                    color = GruvboxFg
+                    style = MaterialTheme.typography.bodyLarge
                 )
                 Text(
                     text = guest.eventName,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = GruvboxGray
+                    color = GruvboxGray,
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
 
-            if (!isEditMode) {
+            if (onCheckChange != null) {
                 Checkbox(
-                    checked = guest.isCheckedIn,
+                    checked = isChecked,
                     onCheckedChange = onCheckChange,
                     colors = CheckboxDefaults.colors(
                         checkedColor = GruvboxGreen,
@@ -382,6 +393,7 @@ fun GuestItemCard(
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
