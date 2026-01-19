@@ -26,4 +26,5 @@
     <string name="checkin">checkin</string>
     <string name="search_icon">Search Icon</string>
     <string name="no_guests_found_matching">No guests found matching \'%1$s\'</string>
+    <string name="no_guests_tap">No guests found. Tap + to add one.</string>
 </resources>

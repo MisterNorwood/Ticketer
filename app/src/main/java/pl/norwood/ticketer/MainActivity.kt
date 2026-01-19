@@ -9,7 +9,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,13 +16,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -40,7 +38,11 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -50,6 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -70,7 +73,7 @@ import pl.norwood.ticketer.ui.theme.GruvboxGray
 import pl.norwood.ticketer.ui.theme.GruvboxGreen
 import pl.norwood.ticketer.ui.theme.GruvboxRed
 import pl.norwood.ticketer.ui.theme.GruvboxYellow
-import pl.norwood.ticketer.ui.theme.SearchBar
+import pl.norwood.ticketer.ui.theme.GuestListLayout
 import pl.norwood.ticketer.ui.theme.TextField
 import pl.norwood.ticketer.viewmodel.GuestViewModel
 
@@ -95,6 +98,7 @@ class MainActivity : ComponentActivity() {
 //Screen handles
 const val EDIT = "edit"
 const val CHECKIN = "checkin"
+
 @Composable
 fun TicketApp() {
     val navController = rememberNavController()
@@ -156,8 +160,6 @@ fun EditScreen(viewModel: GuestViewModel) {
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    selectedGuest = null
-                    showDialog = true
                 },
                 containerColor = GruvboxYellow,
                 contentColor = GruvboxBg
@@ -166,47 +168,36 @@ fun EditScreen(viewModel: GuestViewModel) {
             }
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            SearchBar(
-                query = searchQuery,
-                onQueryChange = { viewModel.onSearchQueryChange(it) }
-            )
 
-            if (guests.isEmpty()) {
-                EmptyStateView(isSearching = searchQuery.isNotEmpty())
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(guests, key = { it.id }) { guest ->
-                        GuestItemCard(
-                            guest = guest,
-                            onEditClick = {
-                                selectedGuest = guest
-                                showDialog = true
-                            },
-                            onCheckChange = null
-                        )
-                    }
-                }
+
+        GuestListLayout(
+            guests = guests,
+            searchQuery = searchQuery,
+            onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
+            modifier = Modifier.padding(padding),
+            emptyStateMessage = stringResource(R.string.no_guests_tap)
+        ) { guest ->
+
+            SwipeToDismissBoxWrapper(
+                onDelete = { viewModel.deleteGuest(guest) }
+            ) {
+                GuestItemCard(
+                    guest = guest,
+                    onEditClick = {
+                        selectedGuest = guest
+                        showDialog = true
+                    },
+                    onCheckChange = null
+                )
             }
         }
 
         if (showDialog) {
             GuestDialog(
                 guest = selectedGuest,
-                onDismiss = { showDialog = false },
+                onDismiss = { },
                 onDelete = {
-                    selectedGuest?.let {
-                        viewModel.deleteGuest(it)
-                    }
-                    showDialog = false
+                    selectedGuest?.let { viewModel.deleteGuest(it) }
                 },
                 onSave = { name, surname, localPath, event ->
                     if (selectedGuest == null) {
@@ -221,108 +212,76 @@ fun EditScreen(viewModel: GuestViewModel) {
                             )
                         )
                     }
-                    showDialog = false
                 }
             )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GuestEditCard(guest: Guest, onClick: () -> Unit) {
-    Card(
+fun SwipeToDismissBoxWrapper(
+    onDelete: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = {
+            if (it == SwipeToDismissBoxValue.EndToStart) {
+                onDelete()
+                true
+            } else false
+        }
+    )
+
+    SwipeToDismissBox(
+        state = dismissState,
+        backgroundContent = { DismissBackground(dismissState) },
+        enableDismissFromEndToStart = true,
+        enableDismissFromStartToEnd = false,
+        content = { content() }
+    )
+}
+
+@Composable
+fun DismissBackground(dismissState: SwipeToDismissBoxState) {
+    val color = when (dismissState.dismissDirection) {
+        SwipeToDismissBoxValue.EndToStart -> GruvboxRed
+        else -> Color.Transparent
+    }
+
+    Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = GruvboxDark1),
-        shape = RoundedCornerShape(12.dp)
+            .fillMaxSize()
+            .background(color, shape = RoundedCornerShape(12.dp))
+            .padding(horizontal = 20.dp),
+        contentAlignment = Alignment.CenterEnd
     ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            AsyncImage(
-                model = guest.photoUrl,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column {
-                Text(
-                    text = "${guest.name} ${guest.surname}",
-                    color = GruvboxFg,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Text(
-                    text = guest.eventName,
-                    color = GruvboxGray,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun EmptyStateView(isSearching: Boolean) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = if (isSearching) stringResource(R.string.no_results_found) else stringResource(
-                    R.string.list_is_empty
-                ),
-                color = GruvboxGray,
-                style = MaterialTheme.typography.bodyMedium
+        if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = "Delete",
+                tint = Color.White
             )
         }
     }
 }
-
 
 @Composable
 fun CheckInScreen(viewModel: GuestViewModel) {
     val guests by viewModel.filteredGuests.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
 
-    Scaffold(
-        containerColor = GruvboxBg
-    ) { padding ->
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            SearchBar(
-                query = searchQuery,
-                onQueryChange = { viewModel.onSearchQueryChange(it) }
+    Scaffold(containerColor = GruvboxBg) { padding ->
+        GuestListLayout(
+            guests = guests,
+            searchQuery = searchQuery,
+            onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
+            modifier = Modifier.padding(padding)
+        ) { guest ->
+            GuestItemCard(
+                guest = guest,
+                onCheckChange = { viewModel.toggleCheckIn(guest) }
             )
-
-            if (guests.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = "No guests found", color = GruvboxGray)
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(guests, key = { it.id }) { guest ->
-                        GuestItemCard(
-                            guest = guest,
-                            onEditClick = null,
-                            onCheckChange = { viewModel.toggleCheckIn(guest) }
-                        )
-                    }
-                }
-            }
         }
     }
 }
@@ -336,7 +295,8 @@ fun GuestItemCard(
     val isCheckInMode = onCheckChange != null
     val isChecked = guest.isCheckedIn
 
-    val backgroundColor = if (isCheckInMode && isChecked) GruvboxGreen.copy(alpha = 0.2f) else GruvboxDark1
+    val backgroundColor =
+        if (isCheckInMode && isChecked) GruvboxGreen.copy(alpha = 0.2f) else GruvboxDark1
 
     val borderStroke = if (isCheckInMode && isChecked) BorderStroke(1.dp, GruvboxGreen) else null
 
