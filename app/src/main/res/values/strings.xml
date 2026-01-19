@@ -1,22 +1,22 @@
 <resources>
-        <string name="app_name">Ticketer</string>
-        <string name="nav_edit">Edit List</string>
-        <string name="nav_checkin">Check In</string>
-        <string name="dialog_add_guest">Add Guest</string>
-        <string name="dialog_edit_guest">Edit Guest</string>
-        <string name="label_name">Name</string>
-        <string name="label_surname">Surname</string>
-        <string name="label_event">Event</string>
-        <string name="label_image_url">Image URL</string>
-        <string name="btn_save">Save</string>
-        <string name="btn_cancel">Cancel</string>
-        <string name="btn_delete">Delete</string>
-        <string name="status_checked_in">Checked In</string>
-        <string name="status_pending">Pending</string>
-        <string name="image_desc">Guest Portrait</string>
-        <string name="fab_add_desc">Add new guest</string>
-        <string name="switch_mode_desc">Switch Screens</string>
-        <string name="empty_list">No guests found.</string>
+    <string name="app_name">Ticketer</string>
+    <string name="nav_edit">Edit List</string>
+    <string name="nav_checkin">Check In</string>
+    <string name="dialog_add_guest">Add Guest</string>
+    <string name="dialog_edit_guest">Edit Guest</string>
+    <string name="label_name">Name</string>
+    <string name="label_surname">Surname</string>
+    <string name="label_event">Event</string>
+    <string name="label_image_url">Image URL</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_delete">Delete</string>
+    <string name="status_checked_in">Checked In</string>
+    <string name="status_pending">Pending</string>
+    <string name="image_desc">Guest Portrait</string>
+    <string name="fab_add_desc">Add new guest</string>
+    <string name="switch_mode_desc">Switch Screens</string>
+    <string name="empty_list">No guests found.</string>
     <string name="search_guests">Search guests…</string>
     <string name="clear_search">Clear Search</string>
     <string name="edit">edit</string>
@@ -25,4 +25,5 @@
     <string name="list_is_empty">List is empty</string>
     <string name="checkin">checkin</string>
     <string name="search_icon">Search Icon</string>
+    <string name="no_guests_found_matching">No guests found matching \'%1$s\'</string>
 </resources>
