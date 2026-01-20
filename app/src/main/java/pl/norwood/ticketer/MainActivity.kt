@@ -160,6 +160,8 @@ fun EditScreen(viewModel: GuestViewModel) {
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
+                    selectedGuest = null
+                    showDialog = true
                 },
                 containerColor = GruvboxYellow,
                 contentColor = GruvboxBg
@@ -169,7 +171,6 @@ fun EditScreen(viewModel: GuestViewModel) {
         }
     ) { padding ->
 
-
         GuestListLayout(
             guests = guests,
             searchQuery = searchQuery,
@@ -177,7 +178,6 @@ fun EditScreen(viewModel: GuestViewModel) {
             modifier = Modifier.padding(padding),
             emptyStateMessage = stringResource(R.string.no_guests_tap)
         ) { guest ->
-
             SwipeToDismissBoxWrapper(
                 onDelete = { viewModel.deleteGuest(guest) }
             ) {
@@ -195,9 +195,13 @@ fun EditScreen(viewModel: GuestViewModel) {
         if (showDialog) {
             GuestDialog(
                 guest = selectedGuest,
-                onDismiss = { },
+                onDismiss = {
+                    showDialog = false
+                },
                 onDelete = {
                     selectedGuest?.let { viewModel.deleteGuest(it) }
+
+                    showDialog = false
                 },
                 onSave = { name, surname, localPath, event ->
                     if (selectedGuest == null) {
@@ -212,6 +216,7 @@ fun EditScreen(viewModel: GuestViewModel) {
                             )
                         )
                     }
+                    showDialog = false
                 }
             )
         }
