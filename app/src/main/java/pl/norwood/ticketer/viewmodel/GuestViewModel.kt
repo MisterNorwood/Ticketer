@@ -1,6 +1,7 @@
 package pl.norwood.ticketer.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -52,14 +53,37 @@ class GuestViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun updateGuest(guest: Guest) {
+    fun updateGuest(updatedGuest: Guest) {
         viewModelScope.launch(Dispatchers.IO) {
-            dao.updateGuest(guest)
+            val existingGuest = dao.getGuestById(updatedGuest.id)
+
+            val oldPath = existingGuest?.photoUrl
+            val newPath = updatedGuest.photoUrl
+
+            if (oldPath != null && oldPath != newPath) {
+                val file = java.io.File(oldPath)
+                if (file.exists()) {
+                    file.delete()
+                    Log.d("FileCleanup", "Deleted old image: $oldPath")
+                }
+            }
+
+            dao.updateGuest(updatedGuest)
         }
     }
 
     fun deleteGuest(guest: Guest) {
         viewModelScope.launch(Dispatchers.IO) {
+            val photoPath = guest.photoUrl
+            if (photoPath.isNotEmpty()) {
+                val file = java.io.File(photoPath)
+                if (file.exists()) {
+                    val deleted = file.delete()
+                    if (deleted) {
+                        Log.d("Ticketer", "File deleted successfully: $photoPath")
+                    }
+                }
+            }
             dao.deleteGuest(guest)
         }
     }

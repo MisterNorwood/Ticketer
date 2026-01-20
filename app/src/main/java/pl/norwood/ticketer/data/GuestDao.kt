@@ -14,6 +14,10 @@ interface GuestDao {
     @Query("SELECT * FROM guests ORDER BY surname ASC")
     fun getAllGuests(): Flow<List<Guest>>
 
+
+    @Query("SELECT * FROM guests WHERE id = :id")
+    suspend fun getGuestById(id: Int): Guest?
+
     @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertGuest(guest: Guest)
 
