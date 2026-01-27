@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">Ticketer</string>
+    <string name="nav_edit">Edytuj listę</string>
+    <string name="nav_checkin">Zamelduj</string>
+    <string name="dialog_add_guest">Dodaj gościa</string>
+    <string name="dialog_edit_guest">Edytuj gościa</string>
+    <string name="label_name">Imię</string>
+    <string name="label_surname">Nazwisko</string>
+    <string name="label_event">Wydarzenie</string>
+    <string name="label_image_url">URL zdjęcia</string>
+    <string name="btn_save">Zapisz</string>
+    <string name="btn_cancel">Anuluj</string>
+    <string name="btn_delete">Usuń</string>
+    <string name="status_checked_in">Zameldowany</string>
+    <string name="status_pending">Oczekujący</string>
+    <string name="image_desc">Portret gościa</string>
+    <string name="fab_add_desc">Dodaj nowego gościa</string>
+    <string name="switch_mode_desc">Przełącz ekrany</string>
+    <string name="empty_list">Nie znaleziono gości.</string>
+    <string name="search_guests">Szukaj gości…</string>
+    <string name="clear_search">Wyczyść wyszukiwanie</string>
+    <string name="edit">edytuj</string>
+    <string name="add_guest">Dodaj gościa</string>
+    <string name="no_results_found">Brak wyników</string>
+    <string name="list_is_empty">Lista jest pusta</string>
+    <string name="checkin">zameldowanie</string>
+    <string name="search_icon">Ikona wyszukiwania</string>
+    <string name="no_guests_found_matching">Nie znaleziono gości pasujących do \'%1$s\'</string>
+    <string name="no_guests_tap">Brak gości. Dotknij +, aby dodać.</string>
+    <string name="guest_updated">Zaktualizowano dane gościa</string>
+</resources>

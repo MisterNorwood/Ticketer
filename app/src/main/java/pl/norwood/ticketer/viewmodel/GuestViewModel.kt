@@ -2,6 +2,7 @@ package pl.norwood.ticketer.viewmodel
 
 import android.app.Application
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -80,7 +81,7 @@ class GuestViewModel(application: Application) : AndroidViewModel(application) {
                 if (file.exists()) {
                     val deleted = file.delete()
                     if (deleted) {
-                        Log.d("Ticketer", "File deleted successfully: $photoPath")
+                        Log.d("FileCleanup", "File deleted successfully: $photoPath")
                     }
                 }
             }

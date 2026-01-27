@@ -1,6 +1,8 @@
 package pl.norwood.ticketer
 
 import android.os.Bundle
+import android.provider.Settings.Global.getString
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
@@ -76,6 +78,7 @@ import pl.norwood.ticketer.ui.theme.GruvboxYellow
 import pl.norwood.ticketer.ui.theme.GuestListLayout
 import pl.norwood.ticketer.ui.theme.TextField
 import pl.norwood.ticketer.viewmodel.GuestViewModel
+import java.security.AccessController.getContext
 
 
 class MainActivity : ComponentActivity() {
@@ -151,7 +154,7 @@ fun TicketApp() {
 fun EditScreen(viewModel: GuestViewModel) {
     val guests by viewModel.filteredGuests.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
-
+    val context = androidx.compose.ui.platform.LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
     var selectedGuest by remember { mutableStateOf<Guest?>(null) }
 
@@ -216,6 +219,7 @@ fun EditScreen(viewModel: GuestViewModel) {
                             )
                         )
                     }
+                    Toast.makeText(context, R.string.guest_updated, Toast.LENGTH_LONG).show()
                     showDialog = false
                 }
             )
